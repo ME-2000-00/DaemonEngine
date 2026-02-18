@@ -52,6 +52,18 @@
     <Filter Include="Headerdateien\Layers\Functional">
       <UniqueIdentifier>{12e16a18-0701-429f-82ed-367769c2cfdc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headerdateien\Requests\LegacyOpenglInitLayer">
+      <UniqueIdentifier>{6de6f7fb-4e36-45e4-af55-635d7d22b31b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Chunk_1DArray">
+      <UniqueIdentifier>{6d56809a-a30c-4915-ab13-70366bbb4db8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Layers\Chunk_handler">
+      <UniqueIdentifier>{b2a6770f-c4a9-4233-be99-4d65a572c2b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\SaWardo">
+      <UniqueIdentifier>{1547153f-1f67-4d64-9839-10da72390426}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\ImGUI\imgui_tables.cpp">
@@ -108,8 +120,17 @@
     <ClCompile Include="InspectorRequest.cpp">
       <Filter>Headerdateien\Requests\Inspector</Filter>
     </ClCompile>
-    <ClCompile Include="InputLayer.cpp">
-      <Filter>Headerdateien\Layers\Functional</Filter>
+    <ClCompile Include="LegacyOpenglInitLayerRequest.cpp">
+      <Filter>Headerdateien\Requests\LegacyOpenglInitLayer</Filter>
+    </ClCompile>
+    <ClCompile Include="Chunk_1DArray.cpp">
+      <Filter>Headerdateien\Chunk_1DArray</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkHandlerLayer.cpp">
+      <Filter>Headerdateien\Layers\Chunk_handler</Filter>
+    </ClCompile>
+    <ClCompile Include="World.cpp">
+      <Filter>Headerdateien\SaWardo</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -182,8 +203,20 @@
     <ClInclude Include="math_helpers.h">
       <Filter>Headerdateien\UTIL</Filter>
     </ClInclude>
-    <ClInclude Include="InputLayer.h">
-      <Filter>Headerdateien\Layers\Functional</Filter>
+    <ClInclude Include="LegacyOpenglInitLayerRequest.h">
+      <Filter>Headerdateien\Requests\LegacyOpenglInitLayer</Filter>
+    </ClInclude>
+    <ClInclude Include="Chunk_1DArray.h">
+      <Filter>Headerdateien\Chunk_1DArray</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldData.h">
+      <Filter>Headerdateien\UTIL</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkHandlerLayer.h">
+      <Filter>Headerdateien\Layers\Chunk_handler</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
+      <Filter>Headerdateien\SaWardo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -12,16 +12,11 @@
 void Mesh::onAttach() {
     // Runs once when the layer is added
 
-    ImGuiViewport* viewport = ImGui::GetMainViewport();
 
-    ImVec2 size = viewport->Size;
     // some random stuff for the beningging
-    color.r = Random01(0.0, 1.0);
-    color.g = Random01(0.0, 1.0);
-    color.b = Random01(0.0, 1.0);
-
-    offsetX = Random01(0.0, 1.0) * size.x;
-    offsetY = Random01(0.0, 1.0) * size.y;
+    color.r = MathHelpers::Random01(0.0, 1.0);
+    color.g = MathHelpers::Random01(0.0, 1.0);
+    color.b = MathHelpers::Random01(0.0, 1.0);
 }
 
 void Mesh::update() {
@@ -31,25 +26,13 @@ void Mesh::update() {
 void Mesh::render() {
     // legacy opengl rect 
 
-    ImGuiViewport* viewport = ImGui::GetMainViewport();
-
-    glm::vec2 size = glm::vec2(viewport->Size.x, viewport->Size.y);
-
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, size.x, size.y, 0, -1, 1);
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
     glColor3f(color.r, color.g, color.b);
 
     glBegin(GL_QUADS);
-    glVertex2f(      offsetX, 100 + offsetY);
-    glVertex2f(100 + offsetX, 100 + offsetY);
-    glVertex2f(100 + offsetX,       offsetY);
-    glVertex2f(      offsetX,       offsetY);
+    glVertex2f(      offsetX - 0.5f,   1 + offsetY - 0.5f);
+    glVertex2f(  1 + offsetX - 0.5f,   1 + offsetY - 0.5f);
+    glVertex2f(  1 + offsetX - 0.5f,       offsetY - 0.5f);
+    glVertex2f(      offsetX - 0.5f,       offsetY - 0.5f);
 
     glEnd();
 

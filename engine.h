@@ -18,7 +18,6 @@
 #include "shader.h"
 #include "camera.h"
 #include "Layer.h"
-#include "Test_Layer.h"
 #include "Logger.h"
 
 #include "RequestHandler.h"
@@ -35,6 +34,7 @@ namespace NEngine {
 	inline glm::vec2 mouse_pos = glm::vec2(0, 0);
 	inline glm::vec2 rel_mouse_pos = glm::vec2(0, 0);
 	inline glm::vec3 input_vector = glm::vec3(0, 0, 0);
+
 }
 
 
@@ -50,6 +50,7 @@ public:
 
 	void pushLayer(std::unique_ptr<Layer> layer);
 	void handleLayerPacketQue();
+	void populateRCTX();
 
 	static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void MouseCallback(GLFWwindow* window, int button, int action, int mods);
@@ -62,4 +63,7 @@ private :
 	LayerRequestHandler LRH;
 	RequestContext RCTX;
 	bool debug_mode = false;
+	float dt = 0.0f;
+	float cam_speed = 40.0f;
+	float fov = 120.0f;
 };

@@ -145,6 +145,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="ChunkHandlerLayer.cpp" />
+    <ClCompile Include="Chunk_1DArray.cpp" />
     <ClCompile Include="dependencies\ImGUI\imgui.cpp" />
     <ClCompile Include="dependencies\ImGUI\imgui_demo.cpp" />
     <ClCompile Include="dependencies\ImGUI\imgui_draw.cpp" />
@@ -153,19 +155,22 @@
     <ClCompile Include="dependencies\ImGUI\imgui_tables.cpp" />
     <ClCompile Include="dependencies\ImGUI\imgui_widgets.cpp" />
     <ClCompile Include="engine.cpp" />
-    <ClCompile Include="InputLayer.cpp" />
     <ClCompile Include="Inspecter.cpp" />
     <ClCompile Include="InspectorRequest.cpp" />
     <ClCompile Include="LegacyOpenglInitLayer.cpp" />
+    <ClCompile Include="LegacyOpenglInitLayerRequest.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="RequestHandler.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="Test_Layer.cpp" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="ChunkHandlerLayer.h" />
+    <ClInclude Include="Chunk_1DArray.h" />
     <ClInclude Include="dependencies\ImGUI\imconfig.h" />
     <ClInclude Include="dependencies\ImGUI\imgui.h" />
     <ClInclude Include="dependencies\ImGUI\imgui_impl_glfw.h" />
@@ -176,12 +181,12 @@
     <ClInclude Include="dependencies\ImGUI\imstb_textedit.h" />
     <ClInclude Include="dependencies\ImGUI\imstb_truetype.h" />
     <ClInclude Include="engine.h" />
-    <ClInclude Include="InputLayer.h" />
     <ClInclude Include="Inspecter.h" />
     <ClInclude Include="InspectorRequest.h" />
     <ClInclude Include="Layer.h" />
     <ClInclude Include="LayerRequest.h" />
     <ClInclude Include="LegacyOpenglInitLayer.h" />
+    <ClInclude Include="LegacyOpenglInitLayerRequest.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="math_helpers.h" />
     <ClInclude Include="mesh.h" />
@@ -189,6 +194,8 @@
     <ClInclude Include="RequestHandler.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="Test_Layer.h" />
+    <ClInclude Include="World.h" />
+    <ClInclude Include="WorldData.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="test.frag" />

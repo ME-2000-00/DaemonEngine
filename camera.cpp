@@ -18,7 +18,7 @@ Camera::Camera(glm::vec3 position, float fovy, float aspect, float near, float f
 
 Camera::Camera() {
     glm::vec3 position = glm::vec3(0.0f, 0.0f, -3.0f);
-    float fovy = glm::radians(90.0f);
+    float fovy = glm::radians(120.0f);
     float aspect = (float)16 / 9;
     float near = 0.1f;
     float far = 1000.0f;
@@ -66,28 +66,28 @@ void Camera::rotate_yaw(float y_angle) {
     yaw -= y_angle;
 }
 
-void Camera::move_left(float vel) {
-    pos -= right * vel * speed;
+void Camera::move_left(float vel, float dt) {
+    pos -= (right * vel * speed) * (dt * 100);
 }
 
-void Camera::move_right(float vel) {
-    pos += right * vel * speed;
+void Camera::move_right(float vel, float dt) {
+    pos += (right * vel * speed) * (dt * 100);
 }
 
-void Camera::move_up(float vel) {
-    pos += up * vel * speed;
+void Camera::move_up(float vel, float dt) {
+    pos += (glm::vec3(0,1,0) * vel * speed) * (dt * 100);
 }
 
-void Camera::move_down(float vel) {
-    pos -= up * vel * speed;
+void Camera::move_down(float vel, float dt) {
+    pos -= (glm::vec3(0, 1, 0) * vel * speed) * (dt * 100);
 }
 
-void Camera::move_forward(float vel) {
-    pos += forward * vel * speed;
+void Camera::move_forward(float vel, float dt) {
+    pos += (forward * vel * speed) * (dt * 100);
 }
 
-void Camera::move_backward(float vel) {
-    pos -= forward * vel * speed;
+void Camera::move_backward(float vel, float dt) {
+    pos -= (forward * vel * speed) * (dt * 100);
 }
 
 void Camera::update_rotation(double xpos, double ypos) {
@@ -111,4 +111,8 @@ void Camera::update_rotation(double xpos, double ypos) {
    rotate_yaw(-xoffset);
    rotate_pitch(-yoffset);
 
+}
+
+void Camera::setFOV(float newFOV, float aspect, float near, float far) {
+    m_proj = glm::perspective(newFOV, aspect, near, far);
 }

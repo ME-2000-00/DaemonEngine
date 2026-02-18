@@ -1,8 +1,9 @@
 #include "engine.h"
 #include "Layer.h"
 #include "LegacyOpenglInitLayer.h"
-#include "Inspecter.h"
 #include "Mesh.h"
+#include "ChunkHandlerLayer.h"
+
 
 
 
@@ -50,10 +51,10 @@ void Engine::init(bool debug_on_start) {
 
     int window_width, window_height;
     glfwGetFramebufferSize(NEngine::window, &window_width, &window_height);
-    NEngine::user_cam = Camera(glm::vec3(0.0f, 0.0f, -3.0f),    // position
-        glm::radians(90.0f),           // FOV in radians
+    NEngine::user_cam = Camera(glm::vec3(32.0f, 128.0f, 32.0f),    // position
+        glm::radians(fov),           // FOV in radians
         (float)window_width / window_height,  // aspect ratio
-        0.1f, 100.0f);                 // near/far planes
+        0.01f, 1000.0f);                 // near/far planes
 
 
     // imgui init
@@ -67,25 +68,34 @@ void Engine::init(bool debug_on_start) {
     ImGui_ImplGlfw_InitForOpenGL(NEngine::window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
+    // request context init and pointers
+	populateRCTX();
 
     // add on start layers here
+    pushLayer(std::make_unique<ChunkHandlerLayer>());
     pushLayer(std::make_unique<LegacyOpenglInitLayer>());
-    //pushLayer(std::make_unique<Inspecter>());
-
 
 
 
     // Set the clear color (RGBA format, values range from 0.0f to 1.0f)
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);  // Dark cyan
     // enable to capture mouse
-    //glfwSetInputMode(NEngine::window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(NEngine::window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
+    // TODO: re-enable later
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
+
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf(glm::value_ptr(NEngine::user_cam.m_proj));
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf(glm::value_ptr(NEngine::user_cam.m_view));
 
 
     Logger::Spacer();
@@ -97,6 +107,7 @@ void Engine::init(bool debug_on_start) {
     //Logger::Log(LogLevel::INFO, "Testing color INFO");
     //Logger::Log(LogLevel::WARNING, "Testing color WARNING");
     //Logger::Log(LogLevel::ERROR, "Testing color ERROR");
+
 };
 
 
@@ -119,9 +130,11 @@ void Engine::MouseCallback(GLFWwindow* window, int button, int action, int mods)
 
 
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+
     }
 
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+
     }
 
     if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS) {
@@ -148,11 +161,35 @@ void Engine::render() {
     // Clear the screen and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // TODO  will be handled by modernopengl in future
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf(glm::value_ptr(NEngine::user_cam.m_proj));
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf(glm::value_ptr(NEngine::user_cam.m_view));
+
     // Start the ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+
+    if (debug_mode) {
+        ImGui::Begin("Debug Window");
+        ImGui::DragFloat(" Cam speed", &cam_speed, 1.0f, 0.1f, 1000.0f);
+        ImGui::DragFloat(" dot Scale", &WorldData::dot_size, 0.2f, 0.1f, 100.0f);
+        ImGui::DragFloat(" FOV", &fov, 1.0f, 20.0f, 120.0f);
+
+        if (ImGui::Button("Set Cam FOV")) {
+            int window_width, window_height;
+            glfwGetFramebufferSize(NEngine::window, &window_width, &window_height);
+            NEngine::user_cam.setFOV(glm::radians(fov), (float)window_width / window_height, 0.01f, 1000.0f);
+        }
+
+        ImGui::End();
+    }
+
 
     // imgui updates here
     if (ImGui::BeginMainMenuBar()) {
@@ -162,17 +199,6 @@ void Engine::render() {
             if (ImGui::MenuItem("Close lol")) {
                 NEngine::running = false;
             }
-
-            // adds a debug colorfull and random mesh layer to the screen
-            if (ImGui::MenuItem("add 200 Mesh Layer")) {
-                for (int i = 0; i < 200; i++) {
-                    pushLayer(std::make_unique<Mesh>());
-                }
-            }
-
-            //if (ImGui::MenuItem("add Inspector")) {
-            //    pushLayer(std::make_unique<Inspecter>());
-            //}
 
 
             //if (ImGui::MenuItem("Remove Inspector")) {
@@ -195,9 +221,9 @@ void Engine::render() {
             if (layer->use)
                 layer->onMenuBar();
         }
+
         ImGui::SameLine(ImGui::GetWindowWidth() - 100);
         ImGui::Text("FPS: %.1f", io.Framerate);
-
 
         ImGui::EndMainMenuBar();
     }
@@ -222,15 +248,41 @@ void Engine::render() {
 }
 
 void Engine::update() {
+    dt = ImGui::GetIO().DeltaTime;
+
+    // Update the camera and movement
+    if (glfwGetKey(NEngine::window, GLFW_KEY_W) == GLFW_PRESS)
+        NEngine::user_cam.move_forward(cam_speed, dt);
+
+    if (glfwGetKey(NEngine::window, GLFW_KEY_S) == GLFW_PRESS)
+        NEngine::user_cam.move_backward(cam_speed, dt);
+
+    if (glfwGetKey(NEngine::window, GLFW_KEY_A) == GLFW_PRESS)
+        NEngine::user_cam.move_left(cam_speed, dt);
+
+    if (glfwGetKey(NEngine::window, GLFW_KEY_D) == GLFW_PRESS)
+        NEngine::user_cam.move_right(cam_speed, dt);
+
+    if (glfwGetKey(NEngine::window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        NEngine::user_cam.move_up(cam_speed, dt);
+
+    if (glfwGetKey(NEngine::window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        NEngine::user_cam.move_down(cam_speed, dt);
+
+    if (glfwGetInputMode(NEngine::window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
+        double xpos, ypos;
+        glfwGetCursorPos(NEngine::window, &xpos, &ypos);
+        NEngine::user_cam.update_rotation(xpos, ypos);
+    }
+
     NEngine::user_cam.update();
+
+
 
     for (auto& layer : layers) {
         if (layer->use)
             layer->update();
     }
-
-
-
 }
 
 
@@ -253,4 +305,13 @@ void Engine::handleLayerPacketQue() {
     LRH.handleRequests(RCTX);
 }
 
+void Engine::populateRCTX() {
+    RCTX.cam = &NEngine::user_cam;
 
+    RCTX.layers.clear();
+
+    for (auto& layer : layers) {
+        RCTX.layers.push_back(layer.get());
+    }
+
+}   

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Layer.h"
-
+#include "camera.h"
 
 class LegacyOpenglInitLayer : public Layer {
 public:
@@ -12,8 +12,10 @@ public:
     void onDetach() override;
     LayerKind getKind() override;
 
+	Camera* user_cam;
 
 private:
     bool show_keyboard_window = false;
-    bool logger = false;
+    bool logger = true;
+
 };

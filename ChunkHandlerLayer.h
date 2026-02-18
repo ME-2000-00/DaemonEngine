@@ -1,18 +1,25 @@
 #pragma once
 
+
+
+
+
 #include "Layer.h"
+#include "Chunk_1DArray.h"
 
 
 
-class InputLayer : public Layer {
+class ChunkHandlerLayer : public Layer {
 public:
     void onAttach() override;
     void update() override;
     void render() override;
-    void onDetach() override;
     void onMenuBar() override;
-    LayerKind getKind() override;
 
 private:
+    std::vector<Chunk_1DArray> chunks;
+    bool showWindow = false;
+    World world;
 
 };
+

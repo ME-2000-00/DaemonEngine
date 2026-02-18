@@ -3,17 +3,19 @@
 #include <imgui.h>
 #include <GL/glew.h>
 #include "Logger.h"
-
+#include "LegacyOpenglInitLayerRequest.h"
 
 
 
 void LegacyOpenglInitLayer::onAttach() {
     // Runs once when the layer is added
     //addRequest(std::make_unique<LayerRequest>());
+    addRequest(std::make_unique<LegacyOpenglInitLayerRequest>());
 }
 
 void LegacyOpenglInitLayer::update() {
     // Per-frame logic (animations, state, etc.)
+    addRequest(std::make_unique<LegacyOpenglInitLayerRequest>());
 }
 
 void LegacyOpenglInitLayer::render() {
@@ -22,6 +24,10 @@ void LegacyOpenglInitLayer::render() {
     // keyboard
     if (show_keyboard_window) {
         ImGui::Begin("Keyboard window", &show_keyboard_window);
+        // have input layers that register the last pressed key as input
+
+
+
         ImGui::End();
     }
 
@@ -76,6 +82,15 @@ void LegacyOpenglInitLayer::onMenuBar() {
 
         ImGui::End();
     }
+
+
+
+	// needs request argument to get cam info from engine
+    ImGui::SameLine(ImGui::GetWindowWidth() - 600);
+    ImGui::Text("Pos: %.2f, %.2f, %.2f", user_cam->pos.x, user_cam->pos.y, user_cam->pos.z);
+
+    ImGui::SameLine(ImGui::GetWindowWidth() - 400);
+    ImGui::Text("Rot: pitch: %.2f, yaw: %.2f", user_cam->pitch, user_cam->yaw);
 }
 
 
