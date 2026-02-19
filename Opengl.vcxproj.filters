@@ -64,6 +64,9 @@
     <Filter Include="Headerdateien\SaWardo">
       <UniqueIdentifier>{1547153f-1f67-4d64-9839-10da72390426}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headerdateien\Player">
+      <UniqueIdentifier>{1a01f085-a2b8-4e95-98bd-0eaf4dbeae77}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\ImGUI\imgui_tables.cpp">
@@ -131,6 +134,9 @@
     </ClCompile>
     <ClCompile Include="World.cpp">
       <Filter>Headerdateien\SaWardo</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Headerdateien\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -217,6 +223,15 @@
     </ClInclude>
     <ClInclude Include="World.h">
       <Filter>Headerdateien\SaWardo</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Headerdateien\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="HitInfo.h">
+      <Filter>Headerdateien\UTIL</Filter>
+    </ClInclude>
+    <ClInclude Include="NEnNamespace.h">
+      <Filter>Headerdateien\UTIL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

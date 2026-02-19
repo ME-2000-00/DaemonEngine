@@ -11,7 +11,7 @@ namespace WorldData {
 	static constexpr float CHUNK_SCALE = 0.01f;
 
 	static constexpr int WORLD_HEIGHT = 6;
-	static constexpr int WORLD_SIZE = 16;
+	static constexpr int WORLD_SIZE = 8;
 
 	inline float dot_size = 5.0f;
 

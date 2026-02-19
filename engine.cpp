@@ -4,7 +4,7 @@
 #include "Mesh.h"
 #include "ChunkHandlerLayer.h"
 
-
+#include "NEnNamespace.h"
 
 
 void Engine::init(bool debug_on_start) {
@@ -130,10 +130,11 @@ void Engine::MouseCallback(GLFWwindow* window, int button, int action, int mods)
 
 
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-
+        NEngine::destroy = true;
     }
 
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        NEngine::build = true;
 
     }
 
@@ -235,7 +236,35 @@ void Engine::render() {
 
 
 
+    // Save state, switch to pixel-space ortho for editor
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
 
+    int fb_w, fb_h;
+    glfwGetFramebufferSize(NEngine::window, &fb_w, &fb_h);
+    glOrtho(0, fb_w, 0, fb_h, -1, 1);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+
+    // disable depth when drawing 2D editor
+    glDisable(GL_DEPTH_TEST);
+
+
+    int window_width, window_height;
+    glfwGetFramebufferSize(NEngine::window, &window_width, &window_height);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glPointSize(WorldData::dot_size);
+
+    glBegin(GL_POINTS);
+    glVertex2f(window_width / 2, window_height / 2);
+    glEnd();
+
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 
 
     // Render ImGui
@@ -276,8 +305,6 @@ void Engine::update() {
     }
 
     NEngine::user_cam.update();
-
-
 
     for (auto& layer : layers) {
         if (layer->use)

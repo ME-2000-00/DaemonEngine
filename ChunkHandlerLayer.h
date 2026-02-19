@@ -1,13 +1,13 @@
 #pragma once
 
-
-
-
-
-#include "Layer.h"
 #include "Chunk_1DArray.h"
+#include "Layer.h"
+#include "camera.h"
 
 
+
+
+class World;
 
 class ChunkHandlerLayer : public Layer {
 public:
@@ -15,11 +15,11 @@ public:
     void update() override;
     void render() override;
     void onMenuBar() override;
-
+    void onDetach() override;
+    LayerKind getKind() override;
 private:
     std::vector<Chunk_1DArray> chunks;
     bool showWindow = false;
     World world;
 
 };
-

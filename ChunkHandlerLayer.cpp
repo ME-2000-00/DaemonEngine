@@ -2,21 +2,18 @@
 
 
 #include <imgui.h>
-#include <GL/glew.h>
-#include "Logger.h"
 #include "World.h"
 
 
 
 void ChunkHandlerLayer::onAttach() {
     // Runs once when the layer is added
-
-	world.genStartChunks();
-
+    world.genStartChunks();
 }
 
 void ChunkHandlerLayer::update() {
     // Per-frame logic (animations, state, etc.)
+    world.update();
 }
 
 void ChunkHandlerLayer::render() {
@@ -24,6 +21,7 @@ void ChunkHandlerLayer::render() {
     if (showWindow) {
         ImGui::Begin("Chunk Handler", &showWindow);
         ImGui::Text("Chunk Amount: %d", world.chunks.size());
+        ImGui::Text("Steps: %d", world.player.points.size());
         ImGui::End();
     }
 
@@ -43,4 +41,13 @@ void ChunkHandlerLayer::onMenuBar() {
         ImGui::MenuItem("Show Window", nullptr, &showWindow);
         ImGui::EndMenu();
     }
+}
+
+
+void ChunkHandlerLayer::onDetach() {
+
+}
+
+LayerKind ChunkHandlerLayer::getKind() {
+    return LayerKind::Gui;
 }

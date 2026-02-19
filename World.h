@@ -6,7 +6,7 @@
 #include <memory>
 #include <array>
 #include <unordered_map>
-
+#include "player.h"
 
 #include <unordered_map>
 
@@ -37,11 +37,18 @@ struct TupleHash {
 class World {
 public:
     std::vector<Point> blocks;
+    glm::vec3 pos;
+    glm::vec3 dir;
+
+    Player player;
 
 	void render();
+    void update();
 
 	int getBlock(glm::ivec3 chunkKey, glm::ivec3 blockPos, glm::ivec3 offset);
 	void genStartChunks();
 	std::unordered_map<std::tuple<int,int,int>, std::unique_ptr<Chunk_1DArray>, TupleHash> chunks;
 
+    glm::ivec3 toChunkCoords(const glm::vec3& worldPos) const;
+    Chunk_1DArray* getChunk(const glm::ivec3& chunkKey) const;
 };

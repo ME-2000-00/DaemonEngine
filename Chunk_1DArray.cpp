@@ -71,12 +71,6 @@ void Chunk_1DArray::init() {
 			}
 		}
 	}
-
-	if (isEmpty) {
-		ignore = true;
-		return;
-	}
-
 }
 
 void Chunk_1DArray::build() {
@@ -94,7 +88,6 @@ void Chunk_1DArray::build() {
 					addVertex(x, y + 1, z + 1);
 					addVertex(x + 1, y + 1, z + 1);
 					addVertex(x + 1, y + 1, z);
-
 				}
 
 				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(0, -1, 0)) == 0) { // bottom face

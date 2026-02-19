@@ -1,6 +1,6 @@
 #include "engine.h"
 #include <iostream>
-
+#include "NEnNamespace.h"
 
 
 //									-- IMPORTANT --

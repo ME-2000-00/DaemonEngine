@@ -33,6 +33,10 @@ public:
         return block_data;
     }
 
+    void SetBlockData(int index, int value) {
+        block_data[index] = value;
+    }
+
     // Returns 1D index for x,y,z
     static int index(int x, int y, int z) {
         return x + WorldData::CHUNK_WIDTH * z + WorldData::CHUNK_AREA * y;
@@ -48,7 +52,7 @@ private:
     std::vector<glm::vec3> colors;
     glm::vec3 tint;
 
-    void addVertex(int x, int y, int z) {
+    void addVertex(int x, int y, int z, glm::vec3 normal = glm::vec3(0,0,0)) {
         vertices.push_back(glm::vec3(x, y, z) + pos);
     }
 

@@ -1,7 +1,6 @@
 #include "LegacyOpenglInitLayer.h"
 
 #include <imgui.h>
-#include <GL/glew.h>
 #include "Logger.h"
 #include "LegacyOpenglInitLayerRequest.h"
 
@@ -26,14 +25,8 @@ void LegacyOpenglInitLayer::render() {
         ImGui::Begin("Keyboard window", &show_keyboard_window);
         // have input layers that register the last pressed key as input
 
-
-
         ImGui::End();
     }
-
-
-
-
 
 }
 

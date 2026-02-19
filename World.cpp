@@ -7,6 +7,7 @@
 #include "Chunk_1DArray.h"
 #include <string>
 
+#include "NEnNamespace.h"
 
 inline std::tuple<int, int, int> toChunkKey(const glm::ivec3& v) {
     return std::make_tuple(v.x, v.y, v.z);
@@ -86,5 +87,88 @@ void World::genStartChunks() {
 }
 
 void World::render() {
+    player.world = this;
 
+    glColor3f(0.0, 1.0, 0.0);
+    glPointSize(WorldData::dot_size);
+
+
+
+
+    if (NEngine::destroy) {
+        auto hit = player.Raycast(NEngine::user_cam.forward, NEngine::user_cam.pos, 16, 1);
+
+        if (hit.state != -1) {
+            Chunk_1DArray* chunk = getChunk(hit.chunk_key);
+            chunk->SetBlockData(hit.index, 0);
+
+			for (int x = -1; x <= 1; x++) {
+                for(int y = -1; y <= 1; y++) {
+                    for(int z = -1; z <= 1; z++) {
+                        Chunk_1DArray* chunkB = getChunk(hit.chunk_key + glm::ivec3(x,y,z));
+                        if (chunkB != nullptr) {
+                            chunkB->build();
+
+                        }
+                    }
+                }
+            }
+
+
+            NEngine::destroy = false;
+        }
+    }
+
+    //if (NEngine::build) {
+    //    auto hit = player.Raycast(NEngine::user_cam.forward, NEngine::user_cam.pos, 16, 0);
+
+    //    if (hit.state != -1) {
+    //        Chunk_1DArray* chunk = getChunk(hit.chunk_key);
+    //        chunk->SetBlockData(hit.index, 1);
+    //        chunk->build();
+
+    //        NEngine::build = false;
+    //    }
+    //}
+
+        //if (NEngine::build) {
+        //    Chunk_1DArray* chunk = getChunk(hit.chunk_key);
+        //    chunk->SetBlockData(hit.index, 1);
+        //    chunk->build();
+
+        //    NEngine::build = false;
+        //}
+}
+
+glm::ivec3 World::toChunkCoords(const glm::vec3& worldPos) const {
+    glm::ivec3 chunk;
+
+    chunk.x = (int)std::floor(worldPos.x / (WorldData::CHUNK_WIDTH));
+    chunk.y = (int)std::floor(worldPos.y / (WorldData::CHUNK_HEIGHT));
+    chunk.z = (int)std::floor(worldPos.z / (WorldData::CHUNK_WIDTH));
+
+    return chunk;
+}
+
+
+
+
+Chunk_1DArray* World::getChunk(const glm::ivec3& chunkKey) const {
+    auto key = std::make_tuple(chunkKey.x, chunkKey.y, chunkKey.z);
+    auto it = chunks.find(key);
+    if (it != chunks.end()) {
+        return it->second.get();
+    }
+    return nullptr; // chunk not generated
+}
+
+
+void World::update() {
+    player.world = this;
+    auto hit = player.Raycast(glm::vec3(0,-1,0), NEngine::user_cam.pos, 2, 1);
+	if (hit.state != 1) {
+        // gravity?
+
+		NEngine::user_cam.pos += glm::vec3(0, -0.1f, 0);
+    }
 }
