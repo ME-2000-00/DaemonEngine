@@ -83,7 +83,7 @@ void Camera::move_down(float vel, float dt) {
 }
 
 void Camera::move_forward(float vel, float dt) {
-    pos += (glm::vec3(forward.x,0, forward.z) * vel * speed) * (dt * 100);
+    pos += (forward * vel * speed) * (dt * 100);
 }
 
 void Camera::move_backward(float vel, float dt) {

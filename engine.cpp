@@ -188,6 +188,13 @@ void Engine::render() {
             NEngine::user_cam.setFOV(glm::radians(fov), (float)window_width / window_height, 0.01f, 1000.0f);
         }
 
+        ImGui::DragFloat(" Light X", &NEngine::light.x, 0.01f, -1.0f, 1.0f);
+        ImGui::DragFloat(" Light Y", &NEngine::light.y, 0.01f, -1.0f, 1.0f);
+        ImGui::DragFloat(" Light Z", &NEngine::light.z, 0.01f, -1.0f, 1.0f);
+
+		ImGui::ColorPicker3("Tint", glm::value_ptr(NEngine::tint));
+
+
         ImGui::End();
     }
 
@@ -237,34 +244,34 @@ void Engine::render() {
 
 
     // Save state, switch to pixel-space ortho for editor
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
+    //glMatrixMode(GL_PROJECTION);
+    //glPushMatrix();
+    //glLoadIdentity();
 
-    int fb_w, fb_h;
-    glfwGetFramebufferSize(NEngine::window, &fb_w, &fb_h);
-    glOrtho(0, fb_w, 0, fb_h, -1, 1);
+    //int fb_w, fb_h;
+    //glfwGetFramebufferSize(NEngine::window, &fb_w, &fb_h);
+    //glOrtho(0, fb_w, 0, fb_h, -1, 1);
 
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
+    //glMatrixMode(GL_MODELVIEW);
+    //glPushMatrix();
+    //glLoadIdentity();
 
-    // disable depth when drawing 2D editor
-    glDisable(GL_DEPTH_TEST);
-
-
-    int window_width, window_height;
-    glfwGetFramebufferSize(NEngine::window, &window_width, &window_height);
-    glColor3f(1.0f, 1.0f, 1.0f);
-    glPointSize(WorldData::dot_size);
-
-    glBegin(GL_POINTS);
-    glVertex2f(window_width / 2, window_height / 2);
-    glEnd();
+    //// disable depth when drawing 2D editor
+    //glDisable(GL_DEPTH_TEST);
 
 
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
+    //int window_width, window_height;
+    //glfwGetFramebufferSize(NEngine::window, &window_width, &window_height);
+    //glColor3f(1.0f, 1.0f, 1.0f);
+    //glPointSize(WorldData::dot_size);
+
+    //glBegin(GL_POINTS);
+    //glVertex2f(window_width / 2, window_height / 2);
+    //glEnd();
+
+
+    //glEnable(GL_DEPTH_TEST);
+    //glDepthFunc(GL_LESS);
 
 
     // Render ImGui

@@ -44,7 +44,7 @@ int clampToChunk(int axis) {
 
 
 // simple bruteforce raycast
-HitInfo Player::Raycast(glm::vec3 dir, glm::vec3 start, int steps, int state) {
+HitInfo Player::Raycast(glm::vec3 dir, glm::vec3 start, float steps, int state) {
 	points.clear();
 
 	HitInfo hitInfo;
@@ -77,7 +77,7 @@ HitInfo Player::Raycast(glm::vec3 dir, glm::vec3 start, int steps, int state) {
 
 				break;
 			}
-			// handle checking for air blocks so we can properly implement placing and breaking u know
+			// handle checking for air blocks so we can properly implement placing and breaking u know  
 		}
 	}
 	return hitInfo;

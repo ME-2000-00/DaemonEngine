@@ -27,9 +27,6 @@ void ChunkHandlerLayer::render() {
 
         
 	for (auto& [pos, chunk] : world.chunks) {
-        if (chunk->ignore) {
-            continue;
-		}
         chunk->render();
     }
 

@@ -4,14 +4,14 @@
 
 
 namespace WorldData {
-	static constexpr int CHUNK_WIDTH = 16;
+	static constexpr int CHUNK_WIDTH = 32;
 	static constexpr int CHUNK_HEIGHT = CHUNK_WIDTH;
 	static constexpr int CHUNK_AREA = CHUNK_WIDTH * CHUNK_HEIGHT;
 	static constexpr int CHUNK_VOL = CHUNK_WIDTH * CHUNK_AREA;
-	static constexpr float CHUNK_SCALE = 0.01f;
+	static constexpr float CHUNK_SCALE = 0.02f;
 
-	static constexpr int WORLD_HEIGHT = 6;
-	static constexpr int WORLD_SIZE = 8;
+	static constexpr int WORLD_HEIGHT = 5;
+	static constexpr int WORLD_SIZE = 16;
 
 	inline float dot_size = 5.0f;
 

@@ -26,6 +26,6 @@ public:
 	// get hit data from hit block
 	std::vector<glm::vec3> points;
 
-	HitInfo Raycast(glm::vec3 dir, glm::vec3 pos, int steps, int state);
+	HitInfo Raycast(glm::vec3 dir, glm::vec3 pos, float steps, int state);
 	World* world;
 };

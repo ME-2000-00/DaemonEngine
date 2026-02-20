@@ -6,6 +6,8 @@
 #include "WorldData.h"
 #include "Chunk_1DArray.h"
 #include <string>
+#include "shader.h"
+#include <gtc/type_ptr.hpp>
 
 #include "NEnNamespace.h"
 
@@ -87,13 +89,8 @@ void World::genStartChunks() {
 }
 
 void World::render() {
+
     player.world = this;
-
-    glColor3f(0.0, 1.0, 0.0);
-    glPointSize(WorldData::dot_size);
-
-
-
 
     if (NEngine::destroy) {
         auto hit = player.Raycast(NEngine::user_cam.forward, NEngine::user_cam.pos, 16, 1);
@@ -164,11 +161,37 @@ Chunk_1DArray* World::getChunk(const glm::ivec3& chunkKey) const {
 
 
 void World::update() {
-    player.world = this;
-    auto hit = player.Raycast(glm::vec3(0,-1,0), NEngine::user_cam.pos, 2, 1);
-	if (hit.state != 1) {
-        // gravity?
+ //   player.world = this;
+ //   auto hit = player.Raycast(glm::vec3(0,-1,0), NEngine::user_cam.pos, 1.8, 1);
+	//if (hit.state != 1) {
+ //       // gravity?
 
-		NEngine::user_cam.pos += glm::vec3(0, -0.1f, 0);
-    }
+	//	NEngine::user_cam.pos += glm::vec3(0, -0.1f, 0);
+ //   }
+
+
+    // apply camera data
+    int viewLoc = glGetUniformLocation(shader, "u_View");
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(NEngine::user_cam.m_view));
+
+    int projLoc = glGetUniformLocation(shader, "u_Projection");
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(NEngine::user_cam.m_proj));
+
+    int lightLoc = glGetUniformLocation(shader, "light");
+    glUniform3fv(lightLoc, 1, glm::value_ptr(NEngine::light));
+
+    int tintLoc = glGetUniformLocation(shader, "tint");
+    glUniform3fv(tintLoc, 1, glm::value_ptr(NEngine::tint));
+}
+
+void World::init() {
+
+
+    std::string vsp = "test.vert";
+    std::string fsp = "test.frag";
+
+    shader = CreateShader(vsp, fsp);
+
+    glUseProgram(shader);
+
 }

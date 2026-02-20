@@ -4,6 +4,8 @@
 #include "math_helpers.h"
 #include "Logger.h"
 
+#include "NEnNamespace.h"
+#include <gtc/type_ptr.hpp>
 
 // -1 out of bounds 0 air 1 not air
 
@@ -27,18 +29,14 @@ int Chunk_1DArray::renderFace(glm::ivec3 block, glm::ivec3 offset) {
 
 // TODO: add more than top face
 void Chunk_1DArray::render() {
-
-	glColor3f(tint.r, tint.g, tint.b); // set color to tint
-
-	glBegin(GL_QUADS);
-	for (const auto& vertex : vertices) {
-		glVertex3f(vertex.x, vertex.y, vertex.z);
-	}
-	glEnd();
+	glBindVertexArray(vao);
+	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+	glBindVertexArray(0);
 }
 
 void Chunk_1DArray::update() {
 	// update the chunk
+
 }
 
 void Chunk_1DArray::init() {
@@ -60,17 +58,19 @@ void Chunk_1DArray::init() {
 
 			for (int y = 0; y < WorldData::CHUNK_HEIGHT; y++)
 			{
-				if (block_data[index(x, y, z)] = (y + pos.y < columnHeight)) {
+				if (y + pos.y < columnHeight) {
 					isEmpty = false;
 					block_data[index(x, y, z)] = 1;
 				}
 				else {
 					block_data[index(x, y, z)] = 0;
-					//has0 = true;
 				}
 			}
 		}
 	}
+
+	glGenVertexArrays(1, &vao);
+	glGenBuffers(1, &vbo);
 }
 
 void Chunk_1DArray::build() {
@@ -83,48 +83,106 @@ void Chunk_1DArray::build() {
 				if (data == 0) continue;
 
 				// handle faces here
-				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(0, 1, 0)) == 0) { // top face
-					addVertex(x, y + 1, z);
-					addVertex(x, y + 1, z + 1);
-					addVertex(x + 1, y + 1, z + 1);
-					addVertex(x + 1, y + 1, z);
+				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(0, 1, 0)) == 0) {
+
+					// triangle 1
+					addVertex(x, y + 1, z, glm::vec3(0,1,0));
+					addVertex(x, y + 1, z + 1, glm::vec3(0, 1, 0));
+					addVertex(x + 1, y + 1, z + 1, glm::vec3(0, 1, 0));
+
+					// triangle 2
+					addVertex(x, y + 1, z, glm::vec3(0, 1, 0));
+					addVertex(x + 1, y + 1, z + 1, glm::vec3(0, 1, 0));
+					addVertex(x + 1, y + 1, z, glm::vec3(0, 1, 0));
 				}
 
-				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(0, -1, 0)) == 0) { // bottom face
-					addVertex(x, y, z);
-					addVertex(x + 1, y, z);
-					addVertex(x + 1, y, z + 1);
-					addVertex(x, y, z + 1);
+				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(0, -1, 0)) == 0) {
+
+					// triangle 1
+					addVertex(x, y, z, glm::vec3(0, -1, 0));
+					addVertex(x + 1, y, z, glm::vec3(0, -1, 0));
+					addVertex(x + 1, y, z + 1, glm::vec3(0, -1, 0));
+
+					// triangle 2
+					addVertex(x, y, z, glm::vec3(0, -1, 0));
+					addVertex(x + 1, y, z + 1, glm::vec3(0, -1, 0));
+					addVertex(x, y, z + 1, glm::vec3(0, -1, 0));
 				}
 
-				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(-1, 0, 0)) == 0) { // left face
-					addVertex(x, y, z);
-					addVertex(x, y, z + 1);
-					addVertex(x, y + 1, z + 1);
-					addVertex(x, y + 1, z);
+				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(-1, 0, 0)) == 0) {
+
+					// triangle 1
+					addVertex(x, y, z, glm::vec3(-1, 0, 0));
+					addVertex(x, y, z + 1, glm::vec3(-1, 0, 0));
+					addVertex(x, y + 1, z + 1, glm::vec3(-1, 0, 0));
+
+					// triangle 2
+					addVertex(x, y, z, glm::vec3(-1, 0, 0));
+					addVertex(x, y + 1, z + 1, glm::vec3(-1, 0, 0));
+					addVertex(x, y + 1, z, glm::vec3(-1, 0, 0));
 				}
 
-				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(1, 0, 0)) == 0) { // right face
-					addVertex(x + 1, y, z);
-					addVertex(x + 1, y + 1, z);
-					addVertex(x + 1, y + 1, z + 1);
-					addVertex(x + 1, y, z + 1);
+				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(1, 0, 0)) == 0) {
+
+					// triangle 1
+					addVertex(x + 1, y, z, glm::vec3(1, 0, 0));
+					addVertex(x + 1, y + 1, z, glm::vec3(1, 0, 0));
+					addVertex(x + 1, y + 1, z + 1, glm::vec3(1, 0, 0));
+
+					// triangle 2
+					addVertex(x + 1, y, z, glm::vec3(1, 0, 0));
+					addVertex(x + 1, y + 1, z + 1, glm::vec3(1, 0, 0));
+					addVertex(x + 1, y, z + 1, glm::vec3(1, 0, 0));
 				}
 
-				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(0, 0, -1)) == 0) { // back face
-					addVertex(x, y, z);
-					addVertex(x, y + 1, z);
-					addVertex(x + 1, y + 1, z);
-					addVertex(x + 1, y, z);
+				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(0, 0, -1)) == 0) {
+
+					// triangle 1
+					addVertex(x, y, z, glm::vec3(0, 0, -1));
+					addVertex(x, y + 1, z, glm::vec3(0, 0, -1));
+					addVertex(x + 1, y + 1, z, glm::vec3(0, 0, -1));
+
+					// triangle 2
+					addVertex(x, y, z, glm::vec3(0, 0, -1));
+					addVertex(x + 1, y + 1, z, glm::vec3(0, 0, -1));
+					addVertex(x + 1, y, z, glm::vec3(0, 0, -1));
 				}
 
-				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(0, 0, 1)) == 0) { // front face
-					addVertex(x, y, z + 1);
-					addVertex(x + 1, y, z + 1);
-					addVertex(x + 1, y + 1, z + 1);
-					addVertex(x, y + 1, z + 1);
+				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(0, 0, 1)) == 0) {
+
+					// triangle 1
+					addVertex(x, y, z + 1, glm::vec3(0, 0, 1));
+					addVertex(x + 1, y, z + 1, glm::vec3(0, 0, 1));
+					addVertex(x + 1, y + 1, z + 1, glm::vec3(0, 0, 1));
+
+					// triangle 2
+					addVertex(x, y, z + 1, glm::vec3(0, 0, 1));
+					addVertex(x + 1, y + 1, z + 1, glm::vec3(0, 0, 1));
+					addVertex(x, y + 1, z + 1, glm::vec3(0, 0, 1));
 				}
 			}
 		}
 	}
+	update_buffers();
+}
+
+
+void Chunk_1DArray::update_buffers() {
+
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+	glBufferData(GL_ARRAY_BUFFER,
+		vertices.size() * sizeof(Vertex),
+		vertices.data(),
+		GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }

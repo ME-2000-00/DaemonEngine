@@ -7,6 +7,9 @@ namespace NEngine {
 	inline GLFWwindow* window;
 	inline glm::vec2 window_res = glm::vec2(-1, -1);
 
+	inline glm::vec3 light = glm::vec3(0.4, 0.8, -0.1);
+	inline glm::vec3 tint = glm::vec3(.2, .4, .37);
+
 	inline Camera user_cam;
 
 	inline bool running = true;

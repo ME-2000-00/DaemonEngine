@@ -11,6 +11,16 @@
 #include "math_helpers.h"
 #include "World.h"
 
+
+struct Vertex {
+    glm::vec3 position;
+    glm::vec3 normal;
+};
+
+
+
+
+
 class Chunk_1DArray {
 public:
     // Constructor: pos is chunk coordinates, World& ref stored for cross-chunk checks
@@ -25,6 +35,8 @@ public:
     void render();
     void update();
     void build();
+
+    void update_buffers();
 
     bool ignore = false;
 
@@ -41,19 +53,29 @@ public:
     static int index(int x, int y, int z) {
         return x + WorldData::CHUNK_WIDTH * z + WorldData::CHUNK_AREA * y;
     }
+
     glm::vec3 pos;
+    glm::vec3 tint;
 
 private:
     glm::vec3 key;
     World& world;
 
-    std::array<int, WorldData::CHUNK_VOL> block_data{};
-    std::vector<glm::vec3> vertices;
-    std::vector<glm::vec3> colors;
-    glm::vec3 tint;
+    // opengl_stuff;
+    unsigned int vbo;
+    unsigned int vao;
 
-    void addVertex(int x, int y, int z, glm::vec3 normal = glm::vec3(0,0,0)) {
-        vertices.push_back(glm::vec3(x, y, z) + pos);
+
+    std::array<int, WorldData::CHUNK_VOL> block_data{};
+    std::vector<Vertex> vertices;
+    std::vector<glm::vec3> colors;
+
+    void addVertex(int x, int y, int z, glm::vec3 normal = glm::vec3(0,1,0)) {
+		Vertex v;
+		v.position = glm::vec3(x, y, z) + pos;
+		v.normal = normal;
+
+        vertices.push_back(std::move(v));
     }
 
     // 0 = air, 1 = block, -1 = out of bounds

@@ -49,6 +49,6 @@ private :
 	RequestContext RCTX;
 	bool debug_mode = false;
 	float dt = 0.0f;
-	float cam_speed = 40.0f;
+	float cam_speed = 120.0f;
 	float fov = 120.0f;
 };

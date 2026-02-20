@@ -36,6 +36,11 @@ struct TupleHash {
 
 class World {
 public:
+
+    World() {
+        init();
+    }
+
     std::vector<Point> blocks;
     glm::vec3 pos;
     glm::vec3 dir;
@@ -45,10 +50,14 @@ public:
 	void render();
     void update();
 
+    void init();
+
 	int getBlock(glm::ivec3 chunkKey, glm::ivec3 blockPos, glm::ivec3 offset);
 	void genStartChunks();
 	std::unordered_map<std::tuple<int,int,int>, std::unique_ptr<Chunk_1DArray>, TupleHash> chunks;
 
     glm::ivec3 toChunkCoords(const glm::vec3& worldPos) const;
     Chunk_1DArray* getChunk(const glm::ivec3& chunkKey) const;
+
+    unsigned int shader;
 };
