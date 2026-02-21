@@ -3,6 +3,7 @@
 #include "LegacyOpenglInitLayer.h"
 #include "Mesh.h"
 #include "ChunkHandlerLayer.h"
+#include "WorldData.h"
 
 #include "NEnNamespace.h"
 
@@ -28,6 +29,10 @@ void Engine::init(bool debug_on_start) {
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
     NEngine::window = glfwCreateWindow(mode->width, mode->height, "DaemonEngine", monitor, NULL);
 
+    NEngine::colors[0] = glm::vec3(0, 0.8, 0);
+    NEngine::colors[1] = glm::vec3(.6, .4, 0);
+    NEngine::colors[2] = glm::vec3(0, 0, 1);
+
     if (!NEngine::window)
     {
         glfwTerminate();
@@ -51,7 +56,7 @@ void Engine::init(bool debug_on_start) {
 
     int window_width, window_height;
     glfwGetFramebufferSize(NEngine::window, &window_width, &window_height);
-    NEngine::user_cam = Camera(glm::vec3(32.0f, 128.0f, 32.0f),    // position
+    NEngine::user_cam = Camera(glm::vec3(0.0f, WorldData::getNoise(0,0,WorldData::CHUNK_SCALE) * (WorldData::CHUNK_HEIGHT * WorldData::WORLD_HEIGHT) + 2, 0.0f),    // position
         glm::radians(fov),           // FOV in radians
         (float)window_width / window_height,  // aspect ratio
         0.01f, 1000.0f);                 // near/far planes
@@ -148,11 +153,16 @@ void Engine::MouseCallback(GLFWwindow* window, int button, int action, int mods)
 
 
 void Engine::exit() {
-    //Logger::Log(LogLevel::INFO, std::to_string(layers.size()));
     //Terminate ImGui
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+
+    // cleanup for the layers
+    for (auto& layer : layers) {
+        if (layer->use)
+            layer->onDetach();
+    }
 
     glfwDestroyWindow(NEngine::window);
     glfwTerminate();
@@ -175,7 +185,7 @@ void Engine::render() {
     ImGui::NewFrame();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-
+    // debug window
     if (debug_mode) {
         ImGui::Begin("Debug Window");
         ImGui::DragFloat(" Cam speed", &cam_speed, 1.0f, 0.1f, 1000.0f);
@@ -192,7 +202,15 @@ void Engine::render() {
         ImGui::DragFloat(" Light Y", &NEngine::light.y, 0.01f, -1.0f, 1.0f);
         ImGui::DragFloat(" Light Z", &NEngine::light.z, 0.01f, -1.0f, 1.0f);
 
-		ImGui::ColorPicker3("Tint", glm::value_ptr(NEngine::tint));
+        // Loop over your 3 colors
+        for (int i = 0; i < 3; i++) {
+            // Create a unique label for each color
+            std::string label = "Color " + std::to_string(i);
+
+            // ImGui expects a float pointer, glm::vec3 stores x/y/z as floats
+            ImGui::ColorEdit3(label.c_str(), &NEngine::colors[i].x);
+        }
+        ImGui::InputInt("Render Distance", &WorldData::render_distance, 1);
 
 
         ImGui::End();

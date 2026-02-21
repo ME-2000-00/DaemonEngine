@@ -12,9 +12,11 @@
 #include "World.h"
 
 
+// add state
 struct Vertex {
     glm::vec3 position;
     glm::vec3 normal;
+    int state;
 };
 
 
@@ -35,6 +37,8 @@ public:
     void render();
     void update();
     void build();
+
+    void cleanup();
 
     void update_buffers();
 
@@ -57,23 +61,29 @@ public:
     glm::vec3 pos;
     glm::vec3 tint;
 
-private:
-    glm::vec3 key;
-    World& world;
+    bool dirty = false;
+
 
     // opengl_stuff;
     unsigned int vbo;
     unsigned int vao;
+
+private:
+    glm::vec3 key;
+    World& world;
+
 
 
     std::array<int, WorldData::CHUNK_VOL> block_data{};
     std::vector<Vertex> vertices;
     std::vector<glm::vec3> colors;
 
-    void addVertex(int x, int y, int z, glm::vec3 normal = glm::vec3(0,1,0)) {
+    void addVertex(int x, int y, int z, glm::vec3 normal = glm::vec3(0,0,0), int state = 1) {
 		Vertex v;
+
 		v.position = glm::vec3(x, y, z) + pos;
 		v.normal = normal;
+        v.state = state;
 
         vertices.push_back(std::move(v));
     }

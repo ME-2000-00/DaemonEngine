@@ -41,6 +41,7 @@ void Chunk_1DArray::update() {
 
 void Chunk_1DArray::init() {
 	bool isEmpty = true;
+	bool has0 = false;
 	
 	float r_tint = MathHelpers::Random01(0.0f, 1.0f);
 	float g_tint = MathHelpers::Random01(0.0f, 1.0f);
@@ -58,19 +59,28 @@ void Chunk_1DArray::init() {
 
 			for (int y = 0; y < WorldData::CHUNK_HEIGHT; y++)
 			{
-				if (y + pos.y < columnHeight) {
+				if (y + pos.y < columnHeight || y + pos.y < (WorldData::CHUNK_HEIGHT * (WorldData::WORLD_HEIGHT * .4)) + 1) {
+					if (y + pos.y > columnHeight - 1) {
+						block_data[index(x, y, z)] = 1;
+					}
+					else {
+						block_data[index(x, y, z)] = 2;
+					}
+
 					isEmpty = false;
-					block_data[index(x, y, z)] = 1;
 				}
 				else {
 					block_data[index(x, y, z)] = 0;
+					has0 = true;
 				}
 			}
 		}
 	}
 
-	glGenVertexArrays(1, &vao);
-	glGenBuffers(1, &vbo);
+	if (isEmpty && !has0) {
+		ignore = true;
+	}
+
 }
 
 void Chunk_1DArray::build() {
@@ -82,88 +92,88 @@ void Chunk_1DArray::build() {
 				int data = block_data[index(x, y, z)];
 				if (data == 0) continue;
 
+
 				// handle faces here
 				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(0, 1, 0)) == 0) {
 
 					// triangle 1
-					addVertex(x, y + 1, z, glm::vec3(0,1,0));
-					addVertex(x, y + 1, z + 1, glm::vec3(0, 1, 0));
-					addVertex(x + 1, y + 1, z + 1, glm::vec3(0, 1, 0));
+					addVertex(x, y + 1, z, glm::vec3(0,1,0), data);
+					addVertex(x, y + 1, z + 1, glm::vec3(0, 1, 0), data);
+					addVertex(x + 1, y + 1, z + 1, glm::vec3(0, 1, 0), data);
 
 					// triangle 2
-					addVertex(x, y + 1, z, glm::vec3(0, 1, 0));
-					addVertex(x + 1, y + 1, z + 1, glm::vec3(0, 1, 0));
-					addVertex(x + 1, y + 1, z, glm::vec3(0, 1, 0));
+					addVertex(x, y + 1, z, glm::vec3(0, 1, 0), data);
+					addVertex(x + 1, y + 1, z + 1, glm::vec3(0, 1, 0), data);
+					addVertex(x + 1, y + 1, z, glm::vec3(0, 1, 0), data);
 				}
 
 				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(0, -1, 0)) == 0) {
 
 					// triangle 1
-					addVertex(x, y, z, glm::vec3(0, -1, 0));
-					addVertex(x + 1, y, z, glm::vec3(0, -1, 0));
-					addVertex(x + 1, y, z + 1, glm::vec3(0, -1, 0));
+					addVertex(x, y, z, glm::vec3(0, -1, 0), data);
+					addVertex(x + 1, y, z, glm::vec3(0, -1, 0), data);
+					addVertex(x + 1, y, z + 1, glm::vec3(0, -1, 0), data);
 
 					// triangle 2
-					addVertex(x, y, z, glm::vec3(0, -1, 0));
-					addVertex(x + 1, y, z + 1, glm::vec3(0, -1, 0));
-					addVertex(x, y, z + 1, glm::vec3(0, -1, 0));
+					addVertex(x, y, z, glm::vec3(0, -1, 0), data);
+					addVertex(x + 1, y, z + 1, glm::vec3(0, -1, 0), data);
+					addVertex(x, y, z + 1, glm::vec3(0, -1, 0), data);
 				}
 
 				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(-1, 0, 0)) == 0) {
 
 					// triangle 1
-					addVertex(x, y, z, glm::vec3(-1, 0, 0));
-					addVertex(x, y, z + 1, glm::vec3(-1, 0, 0));
-					addVertex(x, y + 1, z + 1, glm::vec3(-1, 0, 0));
+					addVertex(x, y, z, glm::vec3(-1, 0, 0), data);
+					addVertex(x, y, z + 1, glm::vec3(-1, 0, 0), data);
+					addVertex(x, y + 1, z + 1, glm::vec3(-1, 0, 0), data);
 
 					// triangle 2
-					addVertex(x, y, z, glm::vec3(-1, 0, 0));
-					addVertex(x, y + 1, z + 1, glm::vec3(-1, 0, 0));
-					addVertex(x, y + 1, z, glm::vec3(-1, 0, 0));
+					addVertex(x, y, z, glm::vec3(-1, 0, 0), data);
+					addVertex(x, y + 1, z + 1, glm::vec3(-1, 0, 0), data);
+					addVertex(x, y + 1, z, glm::vec3(-1, 0, 0), data);
 				}
 
 				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(1, 0, 0)) == 0) {
 
 					// triangle 1
-					addVertex(x + 1, y, z, glm::vec3(1, 0, 0));
-					addVertex(x + 1, y + 1, z, glm::vec3(1, 0, 0));
-					addVertex(x + 1, y + 1, z + 1, glm::vec3(1, 0, 0));
+					addVertex(x + 1, y, z, glm::vec3(1, 0, 0), data);
+					addVertex(x + 1, y + 1, z, glm::vec3(1, 0, 0), data);
+					addVertex(x + 1, y + 1, z + 1, glm::vec3(1, 0, 0), data);
 
 					// triangle 2
-					addVertex(x + 1, y, z, glm::vec3(1, 0, 0));
-					addVertex(x + 1, y + 1, z + 1, glm::vec3(1, 0, 0));
-					addVertex(x + 1, y, z + 1, glm::vec3(1, 0, 0));
+					addVertex(x + 1, y, z, glm::vec3(1, 0, 0), data);
+					addVertex(x + 1, y + 1, z + 1, glm::vec3(1, 0, 0), data);
+					addVertex(x + 1, y, z + 1, glm::vec3(1, 0, 0), data);
 				}
 
 				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(0, 0, -1)) == 0) {
 
 					// triangle 1
-					addVertex(x, y, z, glm::vec3(0, 0, -1));
-					addVertex(x, y + 1, z, glm::vec3(0, 0, -1));
-					addVertex(x + 1, y + 1, z, glm::vec3(0, 0, -1));
+					addVertex(x, y, z, glm::vec3(0, 0, -1), data);
+					addVertex(x, y + 1, z, glm::vec3(0, 0, -1), data);
+					addVertex(x + 1, y + 1, z, glm::vec3(0, 0, -1), data);
 
 					// triangle 2
-					addVertex(x, y, z, glm::vec3(0, 0, -1));
-					addVertex(x + 1, y + 1, z, glm::vec3(0, 0, -1));
-					addVertex(x + 1, y, z, glm::vec3(0, 0, -1));
+					addVertex(x, y, z, glm::vec3(0, 0, -1), data);
+					addVertex(x + 1, y + 1, z, glm::vec3(0, 0, -1), data);
+					addVertex(x + 1, y, z, glm::vec3(0, 0, -1), data);
 				}
 
 				if (renderFace(glm::ivec3(x, y, z), glm::ivec3(0, 0, 1)) == 0) {
 
 					// triangle 1
-					addVertex(x, y, z + 1, glm::vec3(0, 0, 1));
-					addVertex(x + 1, y, z + 1, glm::vec3(0, 0, 1));
-					addVertex(x + 1, y + 1, z + 1, glm::vec3(0, 0, 1));
+					addVertex(x, y, z + 1, glm::vec3(0, 0, 1), data);
+					addVertex(x + 1, y, z + 1, glm::vec3(0, 0, 1), data);
+					addVertex(x + 1, y + 1, z + 1, glm::vec3(0, 0, 1), data);
 
 					// triangle 2
-					addVertex(x, y, z + 1, glm::vec3(0, 0, 1));
-					addVertex(x + 1, y + 1, z + 1, glm::vec3(0, 0, 1));
-					addVertex(x, y + 1, z + 1, glm::vec3(0, 0, 1));
+					addVertex(x, y, z + 1, glm::vec3(0, 0, 1), data);
+					addVertex(x + 1, y + 1, z + 1, glm::vec3(0, 0, 1), data);
+					addVertex(x, y + 1, z + 1, glm::vec3(0, 0, 1), data);
 				}
 			}
 		}
 	}
-	update_buffers();
 }
 
 
@@ -183,6 +193,14 @@ void Chunk_1DArray::update_buffers() {
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
 
+	glEnableVertexAttribArray(2);
+	glVertexAttribIPointer(2, 1, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, state));
+
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+}
+
+
+void Chunk_1DArray::cleanup() {
+
 }

@@ -9,6 +9,10 @@
 #include "player.h"
 
 #include <unordered_map>
+#include <thread>
+
+#include <queue>
+#include <mutex>
 
 class Chunk_1DArray;
 
@@ -32,6 +36,12 @@ struct TupleHash {
 };
 
 
+struct ChunkGenTask {
+    glm::ivec3 chunkKey;
+};  
+
+
+
 
 
 class World {
@@ -41,19 +51,42 @@ public:
         init();
     }
 
+    ~World() {
+        if (worker.joinable()) {
+            worker.join();
+        }
+    }
+
+    World(const World&) = delete;
+    World& operator=(const World&) = delete;
+
+    World(World&&) = delete;
+    World& operator=(World&&) = delete;
+
+
+
     std::vector<Point> blocks;
     glm::vec3 pos;
     glm::vec3 dir;
 
+    // function called by thread
+    void genChunks();
+
+    // thread
+    std::thread worker;
+
+	//std::queue<ChunkGenTask> chunkGenQueue;
+    std::recursive_mutex ChunkMutex;
+
     Player player;
 
-	void render();
     void update();
+
+    void exit();
 
     void init();
 
 	int getBlock(glm::ivec3 chunkKey, glm::ivec3 blockPos, glm::ivec3 offset);
-	void genStartChunks();
 	std::unordered_map<std::tuple<int,int,int>, std::unique_ptr<Chunk_1DArray>, TupleHash> chunks;
 
     glm::ivec3 toChunkCoords(const glm::vec3& worldPos) const;

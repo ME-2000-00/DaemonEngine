@@ -20,4 +20,16 @@ namespace MathHelpers {
             result--;
         return result;
     }
+
+
+    inline int randomInt(int n) {
+        static std::random_device rd;          // seed source
+        static std::mt19937 gen(rd());         // Mersenne Twister engine
+        std::uniform_int_distribution<> dist(0, n);
+        return dist(gen);
+    }
 }
+
+
+
+

@@ -8,7 +8,6 @@
 
 void ChunkHandlerLayer::onAttach() {
     // Runs once when the layer is added
-    world.genStartChunks();
 }
 
 void ChunkHandlerLayer::update() {
@@ -20,17 +19,19 @@ void ChunkHandlerLayer::render() {
     // ImGui window
     if (showWindow) {
         ImGui::Begin("Chunk Handler", &showWindow);
-        ImGui::Text("Chunk Amount: %d", world.chunks.size());
-        ImGui::Text("Steps: %d", world.player.points.size());
+        ImGui::Text("Chunks %d" + world.chunks.size());
         ImGui::End();
     }
 
         
-	for (auto& [pos, chunk] : world.chunks) {
-        chunk->render();
-    }
+    // lock for safe access
+    {
+        std::lock_guard<std::recursive_mutex> lock(world.ChunkMutex);
 
-    world.render();
+        for (auto& [pos, chunk] : world.chunks) {
+            chunk->render();
+        }
+    }
 }
 
 void ChunkHandlerLayer::onMenuBar() {
@@ -42,7 +43,11 @@ void ChunkHandlerLayer::onMenuBar() {
 
 
 void ChunkHandlerLayer::onDetach() {
+    for (auto& [pos, chunk] : world.chunks) {
+        chunk->cleanup();
+    }
 
+    world.exit();
 }
 
 LayerKind ChunkHandlerLayer::getKind() {

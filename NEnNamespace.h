@@ -2,6 +2,7 @@
 #include "imgui_impl_glfw.h"
 #include <glm.hpp>
 #include "camera.h"
+#include <array>
 
 namespace NEngine {
 	inline GLFWwindow* window;
@@ -9,6 +10,8 @@ namespace NEngine {
 
 	inline glm::vec3 light = glm::vec3(0.4, 0.8, -0.1);
 	inline glm::vec3 tint = glm::vec3(.2, .4, .37);
+
+	inline std::array<glm::vec3, 3> colors;
 
 	inline Camera user_cam;
 

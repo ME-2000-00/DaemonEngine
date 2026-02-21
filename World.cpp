@@ -10,6 +10,7 @@
 #include <gtc/type_ptr.hpp>
 
 #include "NEnNamespace.h"
+#include <chrono>
 
 inline std::tuple<int, int, int> toChunkKey(const glm::ivec3& v) {
     return std::make_tuple(v.x, v.y, v.z);
@@ -26,7 +27,6 @@ inline int checkOutOfBounds(int axis) {
 	return axis;
 }
 
-
 inline std::string vec3ToString(const glm::vec3& v)
 {
     return "(" +
@@ -34,9 +34,6 @@ inline std::string vec3ToString(const glm::vec3& v)
         std::to_string(v.y) + ", " +
         std::to_string(v.z) + ")";
 }
-
-
-
 
 // chunk key is current chunk that calls the function
 int World::getBlock(glm::ivec3 chunkKey, glm::ivec3 blockPos, glm::ivec3 offset) {
@@ -65,78 +62,6 @@ int World::getBlock(glm::ivec3 chunkKey, glm::ivec3 blockPos, glm::ivec3 offset)
     return blockType;
 }
 
-
-
-
-void World::genStartChunks() {
-	// generate the initial chunks around the player spawn point
-    for (int i = 0; i < WorldData::WORLD_SIZE; i++) {
-        for (int j = 0; j < WorldData::WORLD_HEIGHT; j++) {
-            for (int k = 0; k < WorldData::WORLD_SIZE; k++) {
-                chunks[{i, j, k}] = std::make_unique<Chunk_1DArray>(glm::vec3(i, j, k), *this);
-            }
-        }
-    }
-
-    for (int i = 0; i < WorldData::WORLD_SIZE; i++) {
-        for (int j = 0; j < WorldData::WORLD_HEIGHT; j++) {
-            for (int k = 0; k < WorldData::WORLD_SIZE; k++) {
-				chunks[{i, j, k}]->build();
-            }
-        }
-    }
-
-}
-
-void World::render() {
-
-    player.world = this;
-
-    if (NEngine::destroy) {
-        auto hit = player.Raycast(NEngine::user_cam.forward, NEngine::user_cam.pos, 16, 1);
-
-        if (hit.state != -1) {
-            Chunk_1DArray* chunk = getChunk(hit.chunk_key);
-            chunk->SetBlockData(hit.index, 0);
-
-			for (int x = -1; x <= 1; x++) {
-                for(int y = -1; y <= 1; y++) {
-                    for(int z = -1; z <= 1; z++) {
-                        Chunk_1DArray* chunkB = getChunk(hit.chunk_key + glm::ivec3(x,y,z));
-                        if (chunkB != nullptr) {
-                            chunkB->build();
-
-                        }
-                    }
-                }
-            }
-
-
-            NEngine::destroy = false;
-        }
-    }
-
-    //if (NEngine::build) {
-    //    auto hit = player.Raycast(NEngine::user_cam.forward, NEngine::user_cam.pos, 16, 0);
-
-    //    if (hit.state != -1) {
-    //        Chunk_1DArray* chunk = getChunk(hit.chunk_key);
-    //        chunk->SetBlockData(hit.index, 1);
-    //        chunk->build();
-
-    //        NEngine::build = false;
-    //    }
-    //}
-
-        //if (NEngine::build) {
-        //    Chunk_1DArray* chunk = getChunk(hit.chunk_key);
-        //    chunk->SetBlockData(hit.index, 1);
-        //    chunk->build();
-
-        //    NEngine::build = false;
-        //}
-}
-
 glm::ivec3 World::toChunkCoords(const glm::vec3& worldPos) const {
     glm::ivec3 chunk;
 
@@ -147,9 +72,6 @@ glm::ivec3 World::toChunkCoords(const glm::vec3& worldPos) const {
     return chunk;
 }
 
-
-
-
 Chunk_1DArray* World::getChunk(const glm::ivec3& chunkKey) const {
     auto key = std::make_tuple(chunkKey.x, chunkKey.y, chunkKey.z);
     auto it = chunks.find(key);
@@ -159,6 +81,24 @@ Chunk_1DArray* World::getChunk(const glm::ivec3& chunkKey) const {
     return nullptr; // chunk not generated
 }
 
+void World::init() {
+
+
+    std::string vsp = "test.vert";
+    std::string fsp = "test.frag";
+
+    shader = CreateShader(vsp, fsp);
+
+    glUseProgram(shader);
+
+    worker = std::thread(&World::genChunks, this);
+}
+
+void World::exit() {
+    // cleans up
+    glDeleteProgram(shader);
+    // join thread?
+}
 
 void World::update() {
  //   player.world = this;
@@ -180,18 +120,95 @@ void World::update() {
     int lightLoc = glGetUniformLocation(shader, "light");
     glUniform3fv(lightLoc, 1, glm::value_ptr(NEngine::light));
 
-    int tintLoc = glGetUniformLocation(shader, "tint");
-    glUniform3fv(tintLoc, 1, glm::value_ptr(NEngine::tint));
+    //int tintLoc = glGetUniformLocation(shader, "tint");
+    //glUniform3fv(tintLoc, 1, glm::value_ptr(NEngine::tint));
+    int colorsLoc = glGetUniformLocation(shader, "colors");
+    glUniform3fv(colorsLoc, 3, glm::value_ptr(NEngine::colors[0]));
+
+
+
+    // mutex lock here
+    {
+        std::lock_guard<std::recursive_mutex> lock(ChunkMutex);
+
+        for (auto& [pos, chunk] : chunks) {
+            if (chunk->dirty) {
+                if (chunk->vao == 0) glGenVertexArrays(1, &chunk->vao);
+                if (chunk->vbo == 0) glGenBuffers(1, &chunk->vbo);
+
+                chunk->update_buffers();
+                chunk->dirty = false;
+            }
+        }
+    }
 }
 
-void World::init() {
+void World::genChunks() {
+    using namespace std;
 
+    while (NEngine::running) {
+        glm::vec3 coords = toChunkCoords(NEngine::user_cam.pos);
 
-    std::string vsp = "test.vert";
-    std::string fsp = "test.frag";
+        for (int x = -WorldData::render_distance / 2; x < WorldData::render_distance; ++x) {
+            for (int y = 0; y < WorldData::WORLD_HEIGHT; ++y) {
+                for (int z = -WorldData::render_distance / 2; z < WorldData::render_distance; ++z) {
+                    glm::ivec3 chunkCoords = glm::ivec3(x, y, z) + glm::ivec3(coords.x, 0, coords.z);
 
-    shader = CreateShader(vsp, fsp);
+                    // Check if chunk exists (mutex protected read)
+                    bool exists = false;
+                    {
+                        std::lock_guard<std::recursive_mutex> lock(ChunkMutex);
+                        exists = chunks.find(toChunkKey(chunkCoords)) != chunks.end();
+                    }
+                    if (exists) continue;
 
-    glUseProgram(shader);
+                    // Generate CPU mesh outside lock
+                    Chunk_1DArray tempChunk(glm::vec3(chunkCoords), *this);
+					if (tempChunk.ignore) continue;
+                    tempChunk.build();
 
+                    // Insert chunk safely
+                    {
+                        std::lock_guard<std::recursive_mutex> lock(ChunkMutex);
+                        auto key = toChunkKey(chunkCoords);
+                        chunks[key] = std::make_unique<Chunk_1DArray>(std::move(tempChunk));
+                        chunks[key]->dirty = true;
+                    }
+
+                    // Rebuild neighbors safely
+                    for (int dx = -1; dx <= 1; ++dx) {
+                        for (int dy = -1; dy <= 1; ++dy) {
+                            for (int dz = -1; dz <= 1; ++dz) {
+                                if (dx == 0 && dy == 0 && dz == 0) continue; // skip self
+
+                                glm::ivec3 neighborCoords = chunkCoords + glm::ivec3(dx, dy, dz);
+                                Chunk_1DArray* neighbor = nullptr;
+
+                                // get pointer safely
+                                {
+                                    std::lock_guard<std::recursive_mutex> lock(ChunkMutex);
+                                    auto it = chunks.find(toChunkKey(neighborCoords));
+                                    if (it != chunks.end()) neighbor = it->second.get();
+                                }
+
+                                // rebuild CPU mesh outside lock
+                                if (neighbor) {
+                                    
+                                    neighbor->build();
+
+                                    // mark dirty while locked
+                                    {
+                                        std::lock_guard<std::recursive_mutex> lock(ChunkMutex);
+                                        neighbor->dirty = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        std::this_thread::sleep_for(5ms); // avoid CPU hog
+    }
 }
